@@ -49,29 +49,8 @@ running = True
 clock = pygame.time.Clock()
 
 while running:
-    screen.fill((30, 30, 30))
-
-    elapsed = time.time() - start_time
-    time_left = max(0, int(game_duration - elapsed))
 
     
-    if time_left <= 0:
-        text = small_font.render(f"Game Over! Score: {score}", True, (255, 255, 255))
-        screen.blit(text, (150, 180))
-        pygame.display.flip()
-        continue
-
-    
-    word_surface = font.render(current_word.upper(), True, COLOR_MAP[current_color])
-    screen.blit(word_surface, (Width // 2 - 100, Height // 2 - 50))
-
-    
-    score_text = small_font.render(f"Score: {score}", True, (255, 255, 255))
-    time_text = small_font.render(f"Time: {time_left}", True, (255, 255, 255))
-
-    screen.blit(score_text, (10, 10))
-    screen.blit(time_text, (500, 10))
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -84,7 +63,7 @@ while running:
                 pygame.K_y: "yellow"
             }
 
-            if event.key in key_map:
+            if event.key in key_map and time_left > 0:
                 answer = key_map[event.key]
 
                 reaction_time = time.time() - round_start
@@ -96,12 +75,31 @@ while running:
                 rounds += 1
                 new_round()
 
+    screen.fill((30, 30, 30))
+
+    elapsed = time.time() - start_time
+    time_left = max(0, int(game_duration - elapsed))
+
+    
+    if time_left <= 0:
+        text = small_font.render(f"Game Over! Score: {score}", True, (255, 255, 255))
+        screen.blit(text, (200, 250))
+    else:
+        word_surface = font.render(current_word.upper(), True, COLOR_MAP[current_color])
+        rect = word_surface.get_rect(center=(Width//2, Height//2))
+        screen.blit(word_surface, rect)
+
+        score_text = small_font.render(f"Score: {score}", True, (255, 255, 255))
+        time_text = small_font.render(f"Time: {time_left}", True, (255, 255, 255))
+
+        screen.blit(score_text, (10, 10))
+        screen.blit(time_text, (650, 10))
+
     pygame.display.flip()
     clock.tick(60)
-
 pygame.quit()
 
-# gives player reaction
+
 if reaction_times:
     avg_time = sum(reaction_times) / len(reaction_times)
     print(f"Average Reaction Time: {round(avg_time, 2)} seconds")
